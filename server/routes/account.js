@@ -15,6 +15,7 @@ let response 	= require("../core/response");
 let mailer 		= require("../libs/mailer");
 
 let User 		= require("../models/user");
+let Guest 	= require("../models/guest");
 
 /**
  * Check what social API are configured. We only show
@@ -64,7 +65,22 @@ module.exports = function(app, db) {
 		res.redirect("/");
 	});
 
-	// Sign-up
+	app.post("/signup", function(req, res){
+		console.log(req.body);
+		let guest = new Guest({
+			"guestName": req.body.guestName,
+			"numOfGuest":req.body.numberTagingAlong
+		});
+		guest.save(function(err, guest){
+			if(err){
+				res.render("/signup");
+			} else {
+				res.render("mail/passwordLessLogin");
+
+			}
+		});
+	});
+
 	app.get("/signup", function(req, res) {
 		if (config.features.disableSignUp === true)
 			return res.redirect("/login");
@@ -76,150 +92,150 @@ module.exports = function(app, db) {
 	});	
 
 	// User registration
-	app.post("/signup", function(req, res) {
-		if (config.features.disableSignUp === true)
-			return res.redirect("/");
+	// app.post("/signup", function(req, res) {
+	// 	if (config.features.disableSignUp === true)
+	// 		return res.redirect("/");
 
-		req.assert("name", req.t("NameCannotBeEmpty")).notEmpty();
-		req.assert("email", req.t("EmailCannotBeEmpty")).notEmpty();
-		req.assert("email", req.t("EmailIsNotValid")).isEmail();
-		req.sanitize("email").normalizeEmail({ remove_dots: false });
+	// 	req.assert("name", req.t("NameCannotBeEmpty")).notEmpty();
+	// 	req.assert("email", req.t("EmailCannotBeEmpty")).notEmpty();
+	// 	req.assert("email", req.t("EmailIsNotValid")).isEmail();
+	// 	req.sanitize("email").normalizeEmail({ remove_dots: false });
 
-		//req.assert("username", req.t("UsernameCannotBeEmpty")).notEmpty();
+	// 	//req.assert("username", req.t("UsernameCannotBeEmpty")).notEmpty();
 		
-		if (!req.body.username)
-			req.body.username = req.body.email;
+	// 	if (!req.body.username)
+	// 		req.body.username = req.body.email;
 
-		req.sanitize("passwordless").toBoolean();
-		let passwordless = req.body.passwordless === true;
-		if (!passwordless) {
-			req.assert("password", req.t("PasswordCannotBeEmpty")).notEmpty();
-			req.assert("password", req.t("PasswordTooShort")).len(6);
-		}
+	// 	req.sanitize("passwordless").toBoolean();
+	// 	let passwordless = req.body.passwordless === true;
+	// 	if (!passwordless) {
+	// 		req.assert("password", req.t("PasswordCannotBeEmpty")).notEmpty();
+	// 		req.assert("password", req.t("PasswordTooShort")).len(6);
+	// 	}
 
-		let errors = req.validationErrors();
+	// 	let errors = req.validationErrors();
 
-		if (errors) {
-			req.flash("error", errors);
-			return res.redirect("/signup");
-		}
+	// 	if (errors) {
+	// 		req.flash("error", errors);
+	// 		return res.redirect("/signup");
+	// 	}
 
-		async.waterfall([
+	// 	async.waterfall([
 
-			function generateVerificationToken(done) {
-				if (config.features.verificationRequired) {
-					crypto.randomBytes(25, function(err, buf) {
-						done(err, err ? null : buf.toString("hex"));
-					});
-				} else {
-					done(null, null);
-				}
-			},
+	// 		function generateVerificationToken(done) {
+	// 			if (config.features.verificationRequired) {
+	// 				crypto.randomBytes(25, function(err, buf) {
+	// 					done(err, err ? null : buf.toString("hex"));
+	// 				});
+	// 			} else {
+	// 				done(null, null);
+	// 			}
+	// 		},
 
-			function passwordlessToken(token, done) {
-				if (passwordless) {
-					crypto.randomBytes(25, function(err, buf) {
-						done(err, token, err ? null : buf.toString("hex"));
-					});
-				}
-				else
-					done(null, token, req.body.password);
-			},
+	// 		function passwordlessToken(token, done) {
+	// 			if (passwordless) {
+	// 				crypto.randomBytes(25, function(err, buf) {
+	// 					done(err, token, err ? null : buf.toString("hex"));
+	// 				});
+	// 			}
+	// 			else
+	// 				done(null, token, req.body.password);
+	// 		},
 
-			function createUser(token, password, done) {
+	// 		function createUser(token, password, done) {
 
-				let user = new User({
-					fullName: req.body.name,
-					email: req.body.email,
-					username: req.body.username,
-					password: password,
-					passwordLess: passwordless,
-					roles: [C.ROLE_USER],
-					provider: "local"
-				});
+	// 			let user = new User({
+	// 				fullName: req.body.name,
+	// 				email: req.body.email,
+	// 				username: req.body.username,
+	// 				password: password,
+	// 				passwordLess: passwordless,
+	// 				roles: [C.ROLE_USER],
+	// 				provider: "local"
+	// 			});
 
-				if (token) {
-					user.verified = false;
-					user.verifyToken = token;
-				} else {
-					user.verified = true;
-				}
+	// 			if (token) {
+	// 				user.verified = false;
+	// 				user.verifyToken = token;
+	// 			} else {
+	// 				user.verified = true;
+	// 			}
 
-				user.save(function(err, user) {
-					if (err && err.code === 11000) {
-						let field = err.message.split(".$")[1];
-						field = field.split(" dup key")[0];
-						field = field.substring(0, field.lastIndexOf("_"));						
-						if (field == "email")
-							req.flash("error", { msg: req.t("EmailIsExists") });
-						else 
-							req.flash("error", { msg: req.t("UsernameIsExists") });
-					}
-					done(err, user);
-				});
-			},
+	// 			user.save(function(err, user) {
+	// 				if (err && err.code === 11000) {
+	// 					let field = err.message.split(".$")[1];
+	// 					field = field.split(" dup key")[0];
+	// 					field = field.substring(0, field.lastIndexOf("_"));						
+	// 					if (field == "email")
+	// 						req.flash("error", { msg: req.t("EmailIsExists") });
+	// 					else 
+	// 						req.flash("error", { msg: req.t("UsernameIsExists") });
+	// 				}
+	// 				done(err, user);
+	// 			});
+	// 		},
 
-			function sendEmail(user, done) {
-				if (user.verified) {
-					// Send welcome email
-					let subject = req.t("mailSubjectWelcome", config);
+	// 		function sendEmail(user, done) {
+	// 			if (user.verified) {
+	// 				// Send welcome email
+	// 				let subject = req.t("mailSubjectWelcome", config);
 
-					res.render("mail/welcome", {
-						name: user.fullName
-					}, function(err, html) {
-						if (err)
-							return done(err);
+	// 				res.render("mail/welcome", {
+	// 					name: user.fullName
+	// 				}, function(err, html) {
+	// 					if (err)
+	// 						return done(err);
 
-						mailer.send(user.email, subject, html, function(err, info) {
-							//if (err)
-							//	req.flash("error", { msg: "Unable to send email to " + user.email});
+	// 					mailer.send(user.email, subject, html, function(err, info) {
+	// 						//if (err)
+	// 						//	req.flash("error", { msg: "Unable to send email to " + user.email});
 
-							done(null, user);
-						});
-					});	
+	// 						done(null, user);
+	// 					});
+	// 				});	
 
-				} else {
-					// Send verification email
-					let subject = req.t("mailSubjectActivate", config);
+	// 			} else {
+	// 				// Send verification email
+	// 				let subject = req.t("mailSubjectActivate", config);
 
-					res.render("mail/accountVerify", {
-						name: user.fullName,
-						validateLink: "http://" + req.headers.host + "/verify/" + user.verifyToken
-					}, function(err, html) {
-						if (err)
-							return done(err);
+	// 				res.render("mail/accountVerify", {
+	// 					name: user.fullName,
+	// 					validateLink: "http://" + req.headers.host + "/verify/" + user.verifyToken
+	// 				}, function(err, html) {
+	// 					if (err)
+	// 						return done(err);
 
-						mailer.send(user.email, subject, html, function(err, info) {
-							if (err)
-								req.flash("error", { msg: req.t("UnableToSendEmail", user) });
-							else
-								req.flash("info", { msg: req.t("emailSentVerifyLink")});
+	// 					mailer.send(user.email, subject, html, function(err, info) {
+	// 						if (err)
+	// 							req.flash("error", { msg: req.t("UnableToSendEmail", user) });
+	// 						else
+	// 							req.flash("info", { msg: req.t("emailSentVerifyLink")});
 
 
-							done(err, user);
-						});
-					});					
-				}
-			}
+	// 						done(err, user);
+	// 					});
+	// 				});					
+	// 			}
+	// 		}
 
-		], function(err, user) {
-			if (err) {
-				logger.error(err);
-				return res.redirect("back");
-			}
+	// 	], function(err, user) {
+	// 		if (err) {
+	// 			logger.error(err);
+	// 			return res.redirect("back");
+	// 		}
 
-			if (user.verified) {
-				req.login(user, function(err) {
-					if (err)
-						logger.error(err);
+	// 		if (user.verified) {
+	// 			req.login(user, function(err) {
+	// 				if (err)
+	// 					logger.error(err);
 
-					return res.redirect("/");
-				});
-			}
-			else
-				res.redirect("/login");
-		});
-	});
+	// 				return res.redirect("/");
+	// 			});
+	// 		}
+	// 		else
+	// 			res.redirect("/login");
+	// 	});
+	// });
 
 
 	// Verify account

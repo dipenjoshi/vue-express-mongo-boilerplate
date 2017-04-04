@@ -59,114 +59,125 @@ module.exports = function(app, db) {
 
 	let authRouter = express.Router();
 
-	authRouter.post("/local", function(req, res, next) {
-
-		req.assert("username", req.t("UsernameCannotBeEmpty")).notEmpty();
-
-		let errors = req.validationErrors();
-		if (errors) {
-			req.flash("error", errors);
-			return respond(req, res, "/login", Response.BAD_REQUEST);
-		}
-
-		if (req.body.password) {
-			// Login with password
-			passport.authenticate("local", function(err, user, info) { 
-				if (!user) {
-					req.flash("error", { msg: info.message });
-					return respond(req, res, "/login");
-				}
-
-				req.login(user, function(err) {
-					if (err) {
-						req.flash("error", { msg: err });
-						return respond(req, res, "/login");
-					}
-
-					// Success authentication
-					// Update user's record with login time
-					req.user.lastLogin = Date.now();
-					req.user.save(function() {
-						// Remove sensitive data before login
-						req.user.password = undefined;
-						req.user.salt = undefined;
-
-						respond(req, res, "/");
-					});
-
-				});
-
-			})(req, res, next);
-
+	authRouter.post("/local", function(req,res,next) {
+		console.log(req.body);
+		var guy = req.body.guy.toLowerCase();
+		var girl = req.body.girl.toLowerCase();
+		if(guy == 'dipen' && girl == 'jhanvi') {
+			res.render("account/signup");
 		} else {
-			// Passwordless login
-			async.waterfall([
+			return respond(req, res, "/", Response.BAD_REQUEST);
+		}
+	
+	});
+	// authRouter.post("/local", function(req, res, next) {
 
-				function generateToken(done) {
-					crypto.randomBytes(25, function(err, buf) {
-						done(err, err ? null : buf.toString("hex"));
-					});
-				},
+	// 	req.assert("username", req.t("UsernameCannotBeEmpty")).notEmpty();
 
-				function getUser(token, done) {
-					let username = req.body.username;
-					User.findOne({
-						$or: [ 
-							{ "username": username}, 
-							{ "email": username}
-						]
-					}, function(err, user) {
-						if (!user) {
-							req.flash("error", { msg: req.t("UsernameIsNotAssociated", { username: username}) });
-							return done("Invalid username or email: " + username);
-						}
+	// 	let errors = req.validationErrors();
+	// 	if (errors) {
+	// 		req.flash("error", errors);
+	// 		return respond(req, res, "/login", Response.BAD_REQUEST);
+	// 	}
 
-						// Check that the user is not disabled or deleted
-						if (user.status !== 1) {
-							req.flash("error", { msg: req.t("UserDisabledOrDeleted")});
-							return done(`User '${username} is disabled or deleted!`);
-						}
+	// 	if (req.body.password) {
+	// 		// Login with password
+	// 		passport.authenticate("local", function(err, user, info) { 
+	// 			if (!user) {
+	// 				req.flash("error", { msg: info.message });
+	// 				return respond(req, res, "/login");
+	// 			}
+
+	// 			req.login(user, function(err) {
+	// 				if (err) {
+	// 					req.flash("error", { msg: err });
+	// 					return respond(req, res, "/login");
+	// 				}
+
+	// 				// Success authentication
+	// 				// Update user's record with login time
+	// 				req.user.lastLogin = Date.now();
+	// 				req.user.save(function() {
+	// 					// Remove sensitive data before login
+	// 					req.user.password = undefined;
+	// 					req.user.salt = undefined;
+
+	// 					respond(req, res, "/");
+	// 				});
+
+	// 			});
+
+	// 		})(req, res, next);
+
+	// 	} else {
+	// 		// Passwordless login
+	// 		async.waterfall([
+
+	// 			function generateToken(done) {
+	// 				crypto.randomBytes(25, function(err, buf) {
+	// 					done(err, err ? null : buf.toString("hex"));
+	// 				});
+	// 			},
+
+	// 			function getUser(token, done) {
+	// 				let username = req.body.username;
+	// 				User.findOne({
+	// 					$or: [ 
+	// 						{ "username": username}, 
+	// 						{ "email": username}
+	// 					]
+	// 				}, function(err, user) {
+	// 					if (!user) {
+	// 						req.flash("error", { msg: req.t("UsernameIsNotAssociated", { username: username}) });
+	// 						return done("Invalid username or email: " + username);
+	// 					}
+
+	// 					// Check that the user is not disabled or deleted
+	// 					if (user.status !== 1) {
+	// 						req.flash("error", { msg: req.t("UserDisabledOrDeleted")});
+	// 						return done(`User '${username} is disabled or deleted!`);
+	// 					}
 						
 
-						user.passwordLessToken = token;
-						//user.passwordLessTokenExpires = Date.now() + 3600000; // expire in 1 hour
-						user.save(function(err) {
-							done(err, token, user);
-						});					
-					});
-				},
+	// 					user.passwordLessToken = token;
+	// 					//user.passwordLessTokenExpires = Date.now() + 3600000; // expire in 1 hour
+	// 					user.save(function(err) {
+	// 						done(err, token, user);
+	// 					});					
+	// 				});
+	// 			},
 
-				function sendResetEmailToUser(token, user, done) {
-					let subject = req.t("mailSubjectLogin", config);
+	// 			function sendResetEmailToUser(token, user, done) {
+	// 				let subject = req.t("mailSubjectLogin", config);
 
-					res.render("mail/passwordLessLogin", {
-						name: user.fullName,
-						loginLink: "http://" + req.headers.host + "/passwordless/" + token
-					}, function(err, html) {
-						if (err)
-							return done(err);
+	// 				res.render("mail/passwordLessLogin", {
+	// 					name: user.fullName,
+	// 					loginLink: "http://" + req.headers.host + "/passwordless/" + token
+	// 				}, function(err, html) {
+	// 					if (err)
+	// 						return done(err);
 
-						mailer.send(user.email, subject, html, function(err, info) {
-							if (err)
-								req.flash("error", { msg: req.t("UnableToSendEmail", user) });
-							else
-								req.flash("info", { msg: req.t("emailSentWithMagicLink", user) });
+	// 					mailer.send(user.email, subject, html, function(err, info) {
+	// 						if (err)
+	// 							req.flash("error", { msg: req.t("UnableToSendEmail", user) });
+	// 						else
+	// 							req.flash("info", { msg: req.t("emailSentWithMagicLink", user) });
 
-							done(err);
-						});
-					});
-				}
+	// 						done(err);
+	// 					});
+	// 				});
+	// 			}
 
-			], function(err, user) {
-				if (err) {
-					logger.error(err);
-				}
+	// 		], function(err, user) {
+	// 			if (err) {
+	// 				logger.error(err);
+	// 			}
 
-				respond(req, res, "back");
-			});
-		}
+	// 			respond(req, res, "back");
+	// 		});
+	// 	}
 
-	});
+	// });
 
 	/**
 	 * Google authentication routes
