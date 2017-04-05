@@ -5,17 +5,28 @@ block styles
 	link(rel='stylesheet', href='/app/styles/frontend.css')
 
 block content
-	.h1 RSVP
 	.page
-		form(name="guestList", method="post" action="/signup")
-			div.input
-				span.label Name
-				input(type="text", name="guestName")
-			div.input
-				span.label Number of party
-				input(type="text", name="numberTagingAlong")
-			div.actions
-				input(type="submit" value="Send")
+		div(class="card" style="font-family: 'Great Vibes', cursive;")
+			h1(style="font-family: 'Cookie', cursive;") RSVP
+			form(name="guestList", method="post" action="/signup")
+				div.input
+					span.label(style="font-size:30px") Your Name 
+					br
+					input(type="text", name="guestName" class="input" style="font-family: 'Cookie', cursive;" autocomplete="off")
+				div.input
+					span.label(style="font-size:30px") Total in your party
+					br
+					<select name="numberTaggingAlong" class="select">
+					<option value="0">0</option>
+					<option value="1" selected="selected">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					</select>			
+				div.actions
+					input(type="submit" value="Send" class="button" style="color:black")
+
 
 block scripts
 	script(src='/app/frontend.js')

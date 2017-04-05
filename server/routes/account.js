@@ -69,7 +69,7 @@ module.exports = function(app, db) {
 		console.log(req.body);
 		let guest = new Guest({
 			"guestName": req.body.guestName,
-			"numOfGuest":req.body.numberTagingAlong
+			"numOfGuest":req.body.numberTaggingAlong
 		});
 		guest.save(function(err, guest){
 			if(err){

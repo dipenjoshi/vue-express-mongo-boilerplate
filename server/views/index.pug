@@ -3,20 +3,21 @@ extends layout
 block styles
 	// Site stylesheet
 	link(rel='stylesheet', href='/app/styles/frontend.css')
+	<link href="https://fonts.googleapis.com/css?family=Cookie|Great+Vibes" rel="stylesheet">
 
 block content
 	.page
-		h1 RSVP
-		form(name="add-estimation", method="post" action="/auth/local")
-			div.input
-				span.label Guy's name
-				input(type="text", name="guy")
-			div.input
-				span.label Girl's name
-				input(type="text", name="girl")
-			div.actions
-				input(type="submit" value="Send")
-	include parts/footer
+		div(class="card" style="font-family: 'Great Vibes', cursive;")
+			h1(style="font-family: 'Cookie', cursive;") RSVP
+			form(name="add-estimation", method="post" action="/auth/local")
+				div.input
+					span.label(style="font-size:30px") Guy's first name
+					input(type="text", name="guy" class="input" style="font-family: 'Cookie', cursive;")
+				div.input
+					span.label(style="font-size:30px") Girl's first name
+					input(type="text", name="girl" style="font-family: 'Cookie', cursive;")
+				div.actions
+					input(type="submit" value="Next >" class="button" style="color:black")
 
 block scripts
 	script(src='/app/frontend.js')
