@@ -10,6 +10,13 @@ block content
 			h1(style="font-family: 'Cookie', cursive;") RSVP
 			form(name="guestList", method="post" action="/signup")
 				div.input
+					span.label(style="font-size:30px") Will you be attending?
+					div
+						input(type="radio" id="switch_left" name="willAttend" value="yes" checked)
+						label(for="switch_left") Yes
+						input(type="radio" id="switch_right" name="willAttend" value="no")
+						label(for="switch_right") No
+				div.input
 					span.label(style="font-size:30px") Your Name 
 					br
 					input(type="text", name="guestName" class="input" style="font-family: 'Cookie', cursive;" autocomplete="off")

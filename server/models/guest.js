@@ -38,12 +38,12 @@ let guestSchema = new Schema({
 	guestName: {
 		type: String,
 		trim: true,
-		"default": "dipen",
+		required: true
 	},
     numOfGuest: {
-        type: String,
+        type: Number,
         trim: true,
-        "default": "jhanvi"
+		required: true
     }
 
 }, schemaOptions);

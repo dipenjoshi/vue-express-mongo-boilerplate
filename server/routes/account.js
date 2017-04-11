@@ -45,6 +45,11 @@ function checkAvailableSocialAuth() {
 	return null;
 }
 
+function guestList() {
+	
+	console.log('function finished');
+}
+
 module.exports = function(app, db) {
 
 	// Login page
@@ -90,6 +95,20 @@ module.exports = function(app, db) {
 		});
 
 	});	
+
+	app.get("/guestList", function(req, res){
+		Guest.find({}, function(err, guests){
+			var totalGuest = 0;
+			for(var i = 0; i < guests.length; i++){
+				totalGuest += guests[i].numOfGuest;
+			}
+			console.log(totalGuest);
+			res.render("account/guestList", {
+				data: guests,
+				total: totalGuest
+			});
+		});
+	});
 
 	// User registration
 	// app.post("/signup", function(req, res) {

@@ -1,0 +1,10 @@
+table
+  tr
+    th(style="width:200px;border:1px solid #dddddd;padding:20px") Guest Name
+    th(style="width:200px;border:1px solid #dddddd") Number RSVP'ed
+    th(style="width:200px;border:1px solid #dddddd") Total: #{total}
+
+  each guest, i in data
+    tr(style="border:1px solid #dddddd;padding:20px")
+      td(style="border:1px solid #dddddd; padding:20px;text-align:center") #{guest.guestName}
+      td(style="border:1px solid #dddddd;text-align:center") #{guest.numOfGuest}
