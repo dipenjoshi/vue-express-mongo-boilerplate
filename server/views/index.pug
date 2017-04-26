@@ -7,18 +7,20 @@ block styles
 
 block content
 	.page
-		div(class="card" style="font-family: 'Great Vibes', cursive;")
-			h1(style="font-family: 'Cookie', cursive;") RSVP
-			form(name="add-estimation", method="post" action="/auth/local")
-				div.input
-					span.label(style="font-size:30px") Guy's first name
-					input(type="text", name="guy" class="input" style="font-family: 'Cookie', cursive;")
-				div.input
-					span.label(style="font-size:30px") Girl's first name
-					input(type="text", name="girl" style="font-family: 'Cookie', cursive;")
-				div.actions
-					input(type="submit" value="Next >" class="button" style="color:black")
-
+		div
+			div(class="card" style="font-family: 'Great Vibes', cursive;")
+				h1(style="font-family: 'Cookie', cursive; margin-bottom:0px") Engagement Party
+				h1(style="font-family: 'Cookie', cursive; margin-top:0px; margin-bottom:10px") RSVP
+				form(name="add-estimation", method="post" action="/auth/local")
+					div.input
+						span.label(style="font-size:30px") Boy's first name
+						input(type="text", name="guy", class="input" style="font-family: 'Cookie', cursive;", autocomplete="off")
+					div.input
+						span.label(style="font-size:30px") Girl's first name
+						input(type="text", name="girl", style="font-family: 'Cookie', cursive;", autocomplete="off")
+					div.actions
+						input(type="submit" value="Next >" class="button" style="color:black")
+			div(class="card" style="padding-top:20px; padding-bottom:20px; margin-top:10px;") Hint: Our names are on the invitation card ;-)
 block scripts
 	script(src='/app/frontend.js')
 
