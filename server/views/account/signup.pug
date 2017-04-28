@@ -3,6 +3,8 @@ extends ../layout
 block styles
 	// Site stylesheet
 	link(rel='stylesheet', href='/app/styles/frontend.css')
+	link(href="https://fonts.googleapis.com/css?family=Cookie|Great+Vibes" rel="stylesheet")
+
 
 block content
 	.page
@@ -17,7 +19,7 @@ block content
 						input(type="radio" id="switch_right" name="willAttend" value="no")
 						label(for="switch_right") No
 				div.input
-					span.label(style="font-size:30px") Your Name 
+					span.label(style="font-size:30px") Your Name
 					br
 					input(type="text", name="guestName" class="input" style="font-family: 'Cookie', cursive;" autocomplete="off")
 				div.input
@@ -30,7 +32,7 @@ block content
 					<option value="3">3</option>
 					<option value="4">4</option>
 					<option value="5">5</option>
-					</select>			
+					</select>
 				div.actions
 					input(type="submit" value="Send" class="button" style="color:black")
 
